@@ -6,10 +6,9 @@
 
 #if defined(LIGHT_MODE)
 namespace config {
+    const bool DEBUG = false;
+
     const int TILE_SIZE = 20;
-    const int WIDTH = 20;
-    const int HEIGHT = 20;
-    const int MINES = 50;
     
     const sf::Color COLOR_HIDDEN = sf::Color(225, 225, 225);
     const sf::Color COLOR_REVEALED = sf::Color(155, 155, 155);
@@ -48,10 +47,9 @@ namespace config {
 
 #elif defined(DARK_MODE)
 namespace config {
+    const bool DEBUG = false;
+
     const int TILE_SIZE = 20;
-    const int WIDTH = 50;
-    const int HEIGHT = 50;
-    const int MINES = 500;
     
     const sf::Color COLOR_HIDDEN = sf::Color(76, 84, 92);
     const sf::Color COLOR_REVEALED = sf::Color(46, 54, 62);

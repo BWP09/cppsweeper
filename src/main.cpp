@@ -3,23 +3,45 @@
 #include "game.hpp"
 #include "fs_helper.hpp"
 #include "config.hpp"
+#include "embedded_font.hpp"
 
-int main() {
+int main(int argc, char* argv[]) {
+    if (argc != 4) {
+        std::cerr << "Usage: " << argv[0] << " <width: int> <height: int> <number_of_mines: int>\n";
+        return 1;
+    }
+
+    int width, height, mines;
+    try {
+        width = std::stoi(argv[1]);
+        height = std::stoi(argv[2]);
+        mines = std::stoi(argv[3]);
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Usage: " << argv[0] << " <width: int> <height: int> <number_of_mines: int>\n";
+        return 1;
+    }
+
+    if (mines > width * height) {
+        std::cerr << "Error: number of mines must be less than or equal to width * height\n";
+        return 1;
+    }
+
     bool debug = false;
     
-    sf::RenderWindow window(sf::VideoMode(config::WIDTH * config::TILE_SIZE, config::HEIGHT * config::TILE_SIZE), "Minesweeper", sf::Style::Titlebar | sf::Style::Close);
+    sf::RenderWindow window(sf::VideoMode(width * config::TILE_SIZE, height * config::TILE_SIZE), "Minesweeper", sf::Style::Titlebar | sf::Style::Close);
     window.setFramerateLimit(60);
 
     sf::Font font;
     
-    if (!font.loadFromFile(get_executable_dir() / "../../assets" / "HussarBoldWebEdition-xq5O.otf")) {
+    if (!font.loadFromMemory(HussarBoldWebEdition_xq5O_otf, HussarBoldWebEdition_xq5O_otf_len)) {
         throw std::runtime_error("error loading font");
     }
 
     bool close = false;
 
     while (window.isOpen() && !close) {
-        Game game(config::WIDTH, config::HEIGHT, config::MINES);
+        Game game(width, height, mines);
         game.init_board();
 
         bool restart = false;
@@ -85,8 +107,8 @@ int main() {
 
             window.clear(config::COLOR_OUTLINE);
 
-            for (int y = 0; y < config::HEIGHT; y++) {
-                for (int x = 0; x < config::WIDTH; x++) {
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
                     sf::RectangleShape d_tile(sf::Vector2f(config::TILE_SIZE - 2, config::TILE_SIZE - 2));
                     d_tile.setPosition(x * config::TILE_SIZE + 1, y * config::TILE_SIZE + 1);
     
@@ -184,7 +206,7 @@ int main() {
 
                         window.draw(text);
                     }
-                    else if (debug && tile.type == TileType::Mine) {
+                    else if (config::DEBUG && debug && tile.type == TileType::Mine) {
                         sf::Text text(config::TEXT_MINE, font, config::TILE_SIZE - 6);
                         
                         text.setFillColor(config::COLOR_MINE);
@@ -196,8 +218,8 @@ int main() {
             }
 
             if (gamestate == GameState::Win) {
-                for (int y = 0; y < config::HEIGHT; y++) {
-                    for (int x = 0; x < config::WIDTH; x++) {
+                for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++) {
                         Tile *tile = game.get_tile(x, y);
 
                         if (tile->state == TileState::Flagged && tile->type == TileType::Mine) {
@@ -218,18 +240,18 @@ int main() {
 
                 sf::FloatRect t_bb = text.getGlobalBounds();
 
-                text.setPosition(((config::WIDTH * config::TILE_SIZE) - t_bb.width) / 2, (((config::HEIGHT * config::TILE_SIZE) - t_bb.height) / 2) - 10);
+                text.setPosition(((width * config::TILE_SIZE) - t_bb.width) / 2, (((height * config::TILE_SIZE) - t_bb.height) / 2) - 10);
 
                 sf::RectangleShape rect(sf::Vector2f(t_bb.width + 2 * config::PADDING_RECT, t_bb.height + 2 * config::PADDING_RECT));
                 rect.setFillColor(config::COLOR_RECT);
-                rect.setPosition((((config::WIDTH * config::TILE_SIZE) - t_bb.width) / 2) - config::PADDING_RECT, (((config::HEIGHT * config::TILE_SIZE) - t_bb.height) / 2) - config::PADDING_RECT);
+                rect.setPosition((((width * config::TILE_SIZE) - t_bb.width) / 2) - config::PADDING_RECT, (((height * config::TILE_SIZE) - t_bb.height) / 2) - config::PADDING_RECT);
 
                 window.draw(rect);
                 window.draw(text);
             }
             else if (gamestate == GameState::Lose) {
-                for (int y = 0; y < config::HEIGHT; y++) {
-                    for (int x = 0; x < config::WIDTH; x++) {
+                for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++) {
                         Tile *tile = game.get_tile(x, y);
 
                         if (tile->state == TileState::Flagged && tile->type != TileType::Mine) {
@@ -270,11 +292,11 @@ int main() {
 
                 sf::FloatRect t_bb = text.getGlobalBounds();
 
-                text.setPosition(((config::WIDTH * config::TILE_SIZE) - t_bb.width) / 2, (((config::HEIGHT * config::TILE_SIZE) - t_bb.height) / 2) - 10);
+                text.setPosition(((width * config::TILE_SIZE) - t_bb.width) / 2, (((height * config::TILE_SIZE) - t_bb.height) / 2) - 10);
 
                 sf::RectangleShape rect(sf::Vector2f(t_bb.width + 2 * config::PADDING_RECT, t_bb.height + 2 * config::PADDING_RECT));
                 rect.setFillColor(config::COLOR_RECT);
-                rect.setPosition((((config::WIDTH * config::TILE_SIZE) - t_bb.width) / 2) - config::PADDING_RECT, (((config::HEIGHT * config::TILE_SIZE) - t_bb.height) / 2) - config::PADDING_RECT);
+                rect.setPosition((((width * config::TILE_SIZE) - t_bb.width) / 2) - config::PADDING_RECT, (((height * config::TILE_SIZE) - t_bb.height) / 2) - config::PADDING_RECT);
 
                 window.draw(rect);
                 window.draw(text);
