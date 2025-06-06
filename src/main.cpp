@@ -8,7 +8,8 @@ int main() {
     bool debug = false;
     
     sf::RenderWindow window(sf::VideoMode(config::WIDTH * config::TILE_SIZE, config::HEIGHT * config::TILE_SIZE), "Minesweeper", sf::Style::Titlebar | sf::Style::Close);
-    
+    window.setFramerateLimit(60);
+
     sf::Font font;
     
     if (!font.loadFromFile(get_executable_dir() / "../../assets" / "HussarBoldWebEdition-xq5O.otf")) {
